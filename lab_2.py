@@ -4,6 +4,8 @@ from typing import List
 from math import log2, ceil
 from random import randrange
 import zlib
+import Levenshtein
+import statistics as st
 
 
 def __hamming_common(src: List[List[int]], s_num: int, encode=True) -> int:
@@ -155,6 +157,12 @@ def noizer4(msg: str, mode: int) -> str:
 
     return result
 
+def strComparison (str1, str2):
+    sentences = str1.split(), str2.split()
+    l = []
+    for w1, w2 in zip(sentences[0], sentences[1]):
+        l.append(Levenshtein.jaro_winkler(w1, w2))
+    return st.mean(l)
 
 if __name__ == '__main__':
     MODE = 43  # длина слова с контрольными битами составляет 49 => значащих битов в слове 43
@@ -174,6 +182,8 @@ if __name__ == '__main__':
         f'Контрольная сумма: {zlib.crc32(dec_msg.encode())}, корректность: {zlib.crc32(dec_msg.encode()) == checksum}')
     print(f'MSG: {msg == dec_msg}')
 
+    print(f'Совпадение строк: {strComparison(msg, dec_msg)}')
+
     # Вторая отправка (не более 1 ошибки на слово)
     print('-----------ВТОРАЯ ОТПРАВКА-----------')
     noize_msg = noizer(enc_msg, MODE)
@@ -185,6 +195,8 @@ if __name__ == '__main__':
         f'Контрольная сумма: {zlib.crc32(dec_msg.encode())}, корректность: {zlib.crc32(dec_msg.encode()) == checksum}')
     print(f'MSG: {msg == dec_msg}')
 
+    print(f'Совпадение строк: {strComparison(msg, dec_msg)}')
+
     # Третья отправка (4 ошибки на слово)
     print('-----------ТРЕТЬЯ ОТПРАВКА-----------')
     noize_msg = noizer4(enc_msg, MODE)
@@ -194,3 +206,5 @@ if __name__ == '__main__':
     print(f'Раскодированное сообщение:\n{dec_msg}')
     print(
         f'Контрольная сумма: {zlib.crc32(dec_msg.encode())}, корректность: {zlib.crc32(dec_msg.encode()) == checksum}, количество обнаруженных ошибок: {err}')
+
+    print(f'Совпадение строк: {strComparison(msg, dec_msg)}')
